@@ -1,0 +1,11 @@
+spring.application.name=order-service
+
+spring.datasource.url=jdbc:postgresql://localhost:5431/order_service
+spring.datasource.username=root
+spring.datasource.password=password
+spring.datasource.driver-class-name=org.postgresql.Driver
+spring.jpa.hibernate.ddl-auto=none
+
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+spring.jpa.generate-ddl=true
