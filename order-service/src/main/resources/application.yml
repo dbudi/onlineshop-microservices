@@ -3,6 +3,8 @@ spring.application.name: order-service
 server.port: 8082
 server.error.include-message: always
 
+inventory.url: "http://localhost:8082"
+
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/order_service
@@ -25,6 +27,7 @@ logging:
 spring.config.activate.on-profile: docker
 
 server.port: 8080
+inventory.url: "http://inventory-service:8080"
 
 spring:
   datasource:
