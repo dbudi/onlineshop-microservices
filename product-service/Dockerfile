@@ -1,5 +1,5 @@
 # Use a base image with eclipse-temurin
-FROM eclipse-temurin:17-jdk-focal
+FROM eclipse-temurin:17-jre-alpine
 
 # Set the working directory inside the container
 WORKDIR /app
