@@ -10,7 +10,7 @@ ARG JAR_FILE=./target/*.jar
 COPY ${JAR_FILE} app.jar
 
 # Expose the port that the application will be running on
-EXPOSE 8080
+EXPOSE 8761
 
 # Set the entry point command to run the application when the container starts
 ENTRYPOINT ["java","-jar","app.jar"]
