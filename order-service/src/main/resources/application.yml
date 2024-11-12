@@ -4,6 +4,34 @@ spring:
   config:
     import: optional:configserver:http://configuser:password123@localhost:8989
 
+#Resilience4j Properties
+resilience4j:
+  circuitbreaker:
+    instances:
+      inventory:
+        registerHealthIndicator: true
+        eventConsumerBufferSize: 10
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 5s
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        minimumNumberOfCalls: 5
+
+  #Resilience4J Timeout Properties
+  timelimiter:
+    instances:
+      inventory:
+        timeoutDuration: 3s
+
+  #Resilience4J Retry Properties
+  retry:
+    instances:
+      inventory:
+        maxAttempts: 3
+        waitDuration: 5s
+
 ---
 spring.config.activate.on-profile: docker
 

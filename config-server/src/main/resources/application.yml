@@ -1,0 +1,19 @@
+server:
+  port: 8989
+spring:
+  application:
+    name: config-server
+  security:
+    user:
+      name: configuser
+      password: password123
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/dbudi/config-repo
+          force-pull: true
+          skip-ssl-validation: true
+          timeout: 10
+          default-label: master
+
