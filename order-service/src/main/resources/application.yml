@@ -1,30 +1,36 @@
-spring.application.name: order-service
-
-server.port: 8082
-server.error.include-message: always
-
 spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/order_service
-    username: root
-    password: password
-    driver-class-name: org.postgresql.Driver
-  jpa:
-    hibernate:
-      ddl-auto: none
-    show-sql: true
-    generate-ddl: true
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  application:
+    name: order-service
+  config:
+    import: optional:configserver:http://configuser:password123@localhost:8989
 
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka
+#Resilience4j Properties
+resilience4j:
+  circuitbreaker:
+    instances:
+      inventory:
+        registerHealthIndicator: true
+        eventConsumerBufferSize: 10
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 5s
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        minimumNumberOfCalls: 5
 
-logging:
-  level:
-    root: INFO
-    com.academy.microservices.order: DEBUG
+  #Resilience4J Timeout Properties
+  timelimiter:
+    instances:
+      inventory:
+        timeoutDuration: 3s
+
+  #Resilience4J Retry Properties
+  retry:
+    instances:
+      inventory:
+        maxAttempts: 3
+        waitDuration: 5s
 
 ---
 spring.config.activate.on-profile: docker
