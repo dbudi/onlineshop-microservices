@@ -1,4 +1,3 @@
-version: '3.4'
 services:
   mongo:
     image: mongo:7.0.5
@@ -162,6 +161,18 @@ services:
 
     networks:
       - backend
+
+  zipkin:
+    image: openzipkin/zipkin
+    restart: always
+    mem_limit: 1024m
+    environment:
+      - STORAGE_TYPE=mem
+    ports:
+      - 9411:9411
+    networks:
+      - backend
+
 networks:
   backend:
     driver: bridge
