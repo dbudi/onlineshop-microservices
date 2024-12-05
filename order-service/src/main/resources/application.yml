@@ -3,15 +3,26 @@ spring:
     name: order-service
   config:
     import: optional:configserver:http://configuser:password123@localhost:8989
+  #replaced with spring cloud stream
   #kafka properties
-  kafka:
-    bootstrap-servers:
-      - localhost:9094
-    template:
-      default-topic: order-placed
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+#  kafka:
+#    bootstrap-servers:
+#      - localhost:9094
+#    template:
+#      default-topic: order-placed
+#    producer:
+#      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+#      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+  cloud:
+    stream:
+      output-bindings:
+        placeOrder-out-0
+      bindings:
+        placeOrder-out-0:
+          destination: order-placed
+      kafka:
+        binder:
+          brokers: localhost:9094
 
 #Resilience4j Properties
 resilience4j:
