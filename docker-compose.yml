@@ -206,6 +206,62 @@ services:
     networks:
       - backend
 
+  postgres-keycloak:
+    # Official Postgres image from DockerHub (we use the last version)
+    image: postgres:16-alpine
+    container_name: postgres-keycloak
+    restart: always
+    mem_limit: 512M
+    cpus: '0.5'
+    ports:
+      - "5433:5432"
+
+    environment:
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: keycloak
+    volumes:
+      - ./docker/postgres/keycloak-data:/var/lib/postgresql/data/
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready --quiet --dbname=$${POSTGRES_DB} --username=$${POSTGRES_USER} || exit 1" ]
+      interval: 5s
+      timeout: 2s
+      retries: 3
+    networks:
+      - keycloak_network
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak
+    command: [ "start-dev", "--import-realm" ]
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres-keycloak:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: password
+
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_HEALTH_ENABLED: "true"
+      KC_LOG_LEVEL: info
+    ports:
+      - 8181:8080
+      - 9000:9000
+    restart: always
+    depends_on:
+      - postgres-keycloak
+    volumes:
+      - ./docker/keycloak/realms/:/opt/keycloak/data/import/
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/health/ready" ]
+      interval: 15s
+      timeout: 2s
+      retries: 15
+    networks:
+      - keycloak_network
+
 networks:
   backend:
+    driver: bridge
+  keycloak_network:
     driver: bridge
