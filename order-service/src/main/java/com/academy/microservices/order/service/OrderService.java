@@ -7,7 +7,7 @@ import com.academy.microservices.order.model.Order;
 import com.academy.microservices.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +21,11 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final InventoryClient inventoryClient;
-    private final KafkaTemplate<String, OrderPlacedEvent> kafkaTemplate;
+    // replaced with spring cloud stream
+//    private final KafkaTemplate<String, OrderPlacedEvent> kafkaTemplate;
+    private final StreamBridge streamBridge;
+
+    private static final String OUTPUT_BINDING = "placeOrder-out-0";
 
     public void placeOrder(OrderRequest orderRequest) {
         var isProductInStock = inventoryClient.isInStock(orderRequest.skuCode(), orderRequest.quantity());
@@ -37,7 +41,7 @@ public class OrderService {
             orderPlacedEvent.setLastName(orderRequest.userDetails().lastName());
 
             log.info("Start - Sending OrderPlacedEvent {} to Kafka topic order-placed", orderPlacedEvent);
-            kafkaTemplate.send("order-placed", orderPlacedEvent);
+            streamBridge.send(OUTPUT_BINDING, orderPlacedEvent);
             log.info("End - Sending OrderPlacedEvent {} to Kafka topic order-placed", orderPlacedEvent);
         } else {
             throw new RuntimeException("Product with skuCode="+orderRequest.skuCode()+" is Out of Stock");

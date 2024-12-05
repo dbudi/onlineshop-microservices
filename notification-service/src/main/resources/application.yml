@@ -3,18 +3,30 @@ server:
 spring:
   application:
     name: notification-service
-  kafka:
-    bootstrap-servers:
-      - localhost:9094
-    consumer:
-      group-id: notification-service
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      properties:
-        spring:
-          json:
-            trusted:
-              packages: com.academy.microservices.order.*
+# replaced with spring cloud stream
+#  kafka:
+#    bootstrap-servers:
+#      - localhost:9094
+#    consumer:
+#      group-id: notification-service
+#      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+#      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+#      properties:
+#        spring:
+#          json:
+#            trusted:
+#              packages: com.academy.microservices.order.*
+  cloud:
+    function:
+      definition: receiveOrder
+    stream:
+      bindings:
+        receiveOrder-in-0:
+          destination: order-placed
+      kafka:
+        binder:
+          brokers: localhost:9094
+
   #Mail properties
   mail:
     host: sandbox.smtp.mailtrap.io
