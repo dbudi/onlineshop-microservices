@@ -1,8 +1,30 @@
+server.port: 8083
+server.error.include-message: always
+
 spring:
   application:
     name: inventory-service
-  config:
-    import: optional:configserver:http://configuser:password123@localhost:8989
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/inventory_service}
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    generate-ddl: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL:http://localhost:8761/eureka}
+
+logging:
+  level:
+    root: INFO
+    com.academy.microservices.inventory: DEBUG
 
 # zipkin
 management:
@@ -20,9 +42,9 @@ server.port: 8080
 
 spring:
   datasource:
-    url: jdbc:postgresql://postgres:5432/inventory_service
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/inventory_service}
 
 eureka:
   client:
     service-url:
-      defaultZone: http://eureka-server:8761/eureka
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL:http://eureka-server:8761/eureka}
