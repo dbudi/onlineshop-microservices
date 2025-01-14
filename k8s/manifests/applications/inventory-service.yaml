@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: inventory-service
+  name: inventory-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: inventory-service
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: inventory-service
+    spec:
+      containers:
+        - image: duibudi/inventory-service:latest
+          name: inventory-service
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8083
+          env:
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: SPRING_DATASOURCE_URL
+                  name: inventory-service-config
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  key: SPRING_DATASOURCE_USERNAME
+                  name: inventory-service-config
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: SPRING_DATASOURCE_PASSWORD
+                  name: inventory-service-secrets
+            - name: EUREKA_CLIENT_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: EUREKA_CLIENT_SERVICE_URL
+                  name: inventory-service-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: inventory-service
+  name: inventory-service
+spec:
+  ports:
+    - port: 8083
+      protocol: TCP
+      targetPort: 8083
+  selector:
+    app: inventory-service
+  type: NodePort
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: inventory-service-config
+data:
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres:5432/inventory_service"
+  SPRING_DATASOURCE_USERNAME: "root"
+  EUREKA_CLIENT_SERVICE_URL: "http://eureka-server:8761/eureka"
+---
+apiVersion: v1
+data:
+  SPRING_DATASOURCE_PASSWORD: cGFzc3dvcmQ=
+kind: Secret
+metadata:
+  name: inventory-service-secrets

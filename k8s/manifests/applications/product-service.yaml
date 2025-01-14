@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: product-service
+  name: product-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: product-service
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: product-service
+    spec:
+      containers:
+        - image: duibudi/product-service:latest
+          name: product-service
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8081
+          env:
+            - name: SPRING_DATA_MONGODB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: SPRING_DATA_MONGODB_HOST
+                  name: product-service-config
+            - name: SPRING_DATA_MONGODB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: SPRING_DATA_MONGODB_PORT
+                  name: product-service-config
+            - name: SPRING_DATA_MONGODB_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  key: SPRING_DATA_MONGODB_USERNAME
+                  name: product-service-config
+            - name: SPRING_DATA_MONGODB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: SPRING_DATA_MONGODB_PASSWORD
+                  name: product-service-secrets
+            - name: SPRING_DATA_MONGODB_AUTH_DB
+              valueFrom:
+                configMapKeyRef:
+                  key: SPRING_DATA_MONGODB_AUTH_DB
+                  name: product-service-config
+            - name: EUREKA_CLIENT_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: EUREKA_CLIENT_SERVICE_URL
+                  name: product-service-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: product-service
+  name: product-service
+spec:
+  ports:
+    - port: 8081
+      protocol: TCP
+      targetPort: 8081
+  selector:
+    app: product-service
+  type: NodePort
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: product-service-config
+data:
+  SPRING_DATA_MONGODB_HOST: "mongo"
+  SPRING_DATA_MONGODB_PORT: "27017"
+  SPRING_DATA_MONGODB_USERNAME: "root"
+  SPRING_DATA_MONGODB_AUTH_DB: "admin"
+  EUREKA_CLIENT_SERVICE_URL: "http://eureka-server:8761/eureka"
+---
+apiVersion: v1
+data:
+  SPRING_DATA_MONGODB_PASSWORD: cGFzc3dvcmQ=
+kind: Secret
+metadata:
+  name: product-service-secrets
